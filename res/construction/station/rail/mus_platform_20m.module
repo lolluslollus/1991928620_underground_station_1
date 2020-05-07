@@ -1,0 +1,9 @@
+local fn = require "mus_platform_module"
+local platformWidth = 20
+local stairsWidth = 10
+local desc = {
+    name = _("MENU_PLATFORM_20_NAME"),
+    description = _("MENU_PLATFORM_20_DESC"),
+    icon = "ui/construction/station/rail/mus_platform_20.tga"
+}
+data = fn(platformWidth, stairsWidth, desc, 4, {-7.5, -2.5, 2.5, 7.5})

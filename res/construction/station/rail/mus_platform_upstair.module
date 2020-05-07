@@ -1,0 +1,98 @@
+local func = require "entry/func"
+local coor = require "entry/coor"
+local pipe = require "entry/pipe"
+local general = require "entry/general"
+local mus = require "mus_platform"
+local quat = require "entry/quaternion"
+
+local mType = "mus_upstairs"
+function data()
+    return {
+        availability = {
+            yearFrom = 0,
+            yearTo = 0,
+        },
+        buildMode = "SINGLE",
+        cost = {
+            price = 0,
+        },
+        description = {
+            name = _("MENU_UPSTAIRS_NAME"),
+            description = _("MENU_UPSTAIRS_DESC"),
+            icon = "ui/construction/station/rail/mus_upstair.tga"
+        },
+        category = {
+            categories = {"Stairs"},
+        },
+        type = mType,
+        order = {
+            value = 1,
+        },
+        metadata = {
+            width = 10,
+            type = mType
+        },
+        
+        updateFn = function(result, transform, tag, slotId, addModelFn, params)
+            local info = mus.slotInfo(slotId)
+            local group = result.group[info.pos.z]
+            local refSlot = slotId % 100000 - 2000
+            local allArcs = result.allArcs[refSlot]
+            local pos = info.pos.y % 2 == 0 and (allArcs.blockCount - info.pos.y / 2) or ((info.pos.y + 1) / 2)
+            local withTag = general.withTag(tag)
+            
+            local isBackward = pos < allArcs.count
+            
+            local newModels = mus.upstairsModels(group.config, allArcs, pos, isBackward)
+            
+            local signFn = function(coords)
+                local trans = quat.byVec(coor.xyz(1, 0, 0), (coords.i - coords.s):withZ(0)):mRot()
+                    * coor.trans(coords.i + coor.xyz(0, 0, -group.config.refZ + 4))
+                return general.newModel("mus/signs/platform_signs_2.mdl", trans)
+            end
+            
+            local signL = group.modules[info.pos.x - 1] and signFn(allArcs.blockCoords.stairs.outer.lc[pos]) or nil
+            local signR = group.modules[info.pos.x + 1] and signFn(allArcs.blockCoords.stairs.outer.rc[pos]) or nil
+            
+            
+            local startBlock = allArcs.blockCoords.platform.lane.mc[isBackward and (pos + 2) or (pos - 1)]
+            local pt1 = startBlock.i:avg(startBlock.s)
+            local pt2 = isBackward and allArcs.blockCoords.platform.lane.mc[pos + 1].i or allArcs.blockCoords.platform.lane.mc[pos].s
+            local pt3 = (isBackward and allArcs.blockCoords.platform.lane.mc[pos].s or allArcs.blockCoords.platform.lane.mc[pos + 1].i) + coor.xyz(0, 0, 6)
+            local pt4 = (pt3 - pt2):normalized():withZ(0) * 3 + pt3
+            local lane =
+                {
+                    general.newModel("mus/person_lane.mdl", general.mRot(pt2 - pt1), coor.trans(pt1)),
+                    general.newModel("mus/person_lane.mdl", general.mRot(pt3 - pt2), coor.trans(pt2)),
+                    general.newModel("mus/person_lane.mdl", general.mRot(pt4 - pt3), coor.trans(pt3))
+                }
+            
+            newModels = newModels + lane + {signL, signR}
+            
+            local connector = group.connectors[info.pos.x] and group.connectors[info.pos.x] or {up = pipe.new * {}, down = pipe.new * {}}
+            connector.up = connector.up / func.with(pt4, {up = true, down = false})
+            group.connectors[info.pos.x] = connector
+            
+            table.insert(result.invoke[2],
+                function()
+                    result.models = result.models
+                        * pipe.filter(function(m) return
+                            m.tag ~= "__module_" .. refSlot
+                            or not (
+                            m.chair
+                            and (m.pos <= pos + 2 and m.pos >= pos - 1)
+                            or (m.pos == pos or m.pos == pos + 1)
+                        )
+                        end)
+                        + withTag(newModels)
+                        + (group.config.isFinalized and {} or withTag({general.newModel("mus/remove_helper.mdl", coor.rotX(math.pi * 0.5) * coor.scale(coor.xyz(3, 3, 1)) * coor.transZ(25) * transform)}))
+                end
+        )
+        end,
+        
+        getModelsFn = function(params)
+            return {}
+        end
+    }
+
+end

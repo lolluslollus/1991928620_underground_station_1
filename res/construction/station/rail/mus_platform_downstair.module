@@ -1,0 +1,82 @@
+local func = require "entry/func"
+local coor = require "entry/coor"
+local pipe = require "entry/pipe"
+local general = require "entry/general"
+local mus = require "mus_platform"
+
+local mType = "mus_downstairs"
+function data()
+    return {
+        availability = {
+            yearFrom = 0,
+            yearTo = 0,
+        },
+        buildMode = "SINGLE",
+        cost = {
+            price = 0,
+        },
+        description = {
+            name = _("MENU_DOWNSTAIRS_NAME"),
+            description = _("MENU_DOWNSTAIRS_DESC"),
+            icon = "ui/construction/station/rail/mus_downstair.tga"
+        },
+        category = {
+            categories = {"Stairs"},
+        },
+        type = mType,
+        order = {
+            value = 2,
+        },
+        metadata = {
+            width = 10,
+            type = mType
+        },
+        
+        updateFn = function(result, transform, tag, slotId, addModelFn, params)
+            local info = mus.slotInfo(slotId)
+            local group = result.group[info.pos.z]
+            local refSlot = slotId % 100000 - 1000
+            local allArcs = result.allArcs[refSlot]
+            local pos = info.pos.y % 2 == 0 and (allArcs.blockCount - (info.pos.y - 2) / 2) or ((info.pos.y + 1) / 2)
+            local isBackward = pos < allArcs.count
+            local newModels = mus.downstairsModels(group.config, allArcs, pos, isBackward)
+            local withTag = general.withTag(tag)
+            
+            local blocks = allArcs.blockCoords.platform.lane.mc
+            local pt1 = (blocks[isBackward and (pos + 1) or (pos - 1)].i):avg(blocks[isBackward and (pos + 1) or (pos - 1)].s)
+            local pt2 = isBackward and blocks[pos].i or blocks[pos].s
+            local pt3 = (isBackward and blocks[pos].s or blocks[pos].i) - coor.xyz(0, 0, 3)
+            pt3 = (pt3 - pt2):normalized() * 3 + pt3
+            local lane =
+                {
+                    general.newModel("mus/person_lane.mdl", general.mRot(pt2 - pt1), coor.trans(pt1)),
+                    general.newModel("mus/person_lane.mdl", general.mRot(pt3 - pt2), coor.trans(pt2))
+                }
+            
+            newModels = newModels + lane
+            
+            local connector = group.connectors[info.pos.x] and group.connectors[info.pos.x] or {up = pipe.new * {}, down = pipe.new * {}}
+            connector.down = connector.down / func.with(pt3, {down = true, up = false})
+            group.connectors[info.pos.x] = connector
+            table.insert(result.invoke[2],
+                function()
+                    result.models = result.models
+                        * pipe.filter(function(m) return
+                            m.tag ~= "__module_" .. refSlot
+                            or m.wall
+                            or not (
+                            m.pos == pos or
+                            (m.chair and (m.pos == pos - 1 or m.pos == pos + 1))
+                        )
+                        end)
+                        + withTag(newModels)
+                        + (group.config.isFinalized and {} or withTag({general.newModel("mus/remove_helper.mdl", coor.rotX(math.pi * 0.5) * coor.scale(coor.xyz(3, 3, 1)) * coor.transZ(25) * transform)}))
+                end)
+        end,
+        
+        getModelsFn = function(params)
+            return {}
+        end
+    }
+
+end
