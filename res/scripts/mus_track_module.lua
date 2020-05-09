@@ -34,6 +34,7 @@ return function(trackWidth, trackType, catenary, desc, order)
                 local withTag = general.withTag(tag)
                 local info = mus.slotInfo(slotId)
                 local group = result.group[info.pos.z]
+                -- local group = result.group[info.pos.z] or {} -- LOLLO tried this
                 local allArcs = mus.trackArcs(trackWidth)(group.config, group.arcs[info.pos.x])
                 result.allArcs[slotId] = allArcs
 

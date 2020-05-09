@@ -381,8 +381,8 @@ local updateFn = function(params)
         local offsets = pipe.new
             * func.seq(posMin > 0 and -1 or (posMin - 1), posMax + 1)
             * pipe.map(function(pos)
-                print('LOLLO g.modules[pos] and g.modules[pos].metadata = ')
-                require('luadump')(true)(g.modules[pos] and g.modules[pos].metadata or {pos = pos, width = 5})
+                -- print('LOLLO g.modules[pos] and g.modules[pos].metadata = ')
+                -- require('luadump')(true)(g.modules[pos] and g.modules[pos].metadata or {pos = pos, width = 5})
                 -- LOLLO removed this
                 -- return g.modules[pos] and g.modules[pos].metadata or {pos = pos, width = 5}
                 -- LOLLO added this
