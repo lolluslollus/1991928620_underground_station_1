@@ -383,18 +383,19 @@ local updateFn = function(params)
             * pipe.map(function(pos)
                 -- print('LOLLO g.modules[pos] and g.modules[pos].metadata = ')
                 -- require('luadump')(true)(g.modules[pos] and g.modules[pos].metadata or {pos = pos, width = 5})
-                -- LOLLO removed this
-                -- return g.modules[pos] and g.modules[pos].metadata or {pos = pos, width = 5}
-                -- LOLLO added this
-                if g.modules[pos] and g.modules[pos].metadata 
-                and g.modules[pos].metadata.pos and g.modules[pos].metadata.width then
-                    return g.modules[pos].metadata
-                else
-                    return {pos = pos, width = 5}
-                end
+                -- LOLLO old
+                return g.modules[pos] and g.modules[pos].metadata or {pos = pos, width = 5}
+                -- LOLLO new
+                -- if g.modules[pos] and g.modules[pos].metadata 
+                -- and g.modules[pos].metadata.pos and g.modules[pos].metadata.width then
+                --     return g.modules[pos].metadata
+                -- else
+                --     return {pos = pos, width = 5}
+                -- end
             end)
             * offsetGen
-        
+        -- print('LOLLO mus.con - offsets = ')
+        -- require('luadump')(true)(offsets)
         local reOffset = func.filter(offsets, function(o) return o[1] == 0 end)[1][2]
         offsets = offsets * pipe.map(function(o) return {o[1], o[2] - reOffset} end)
         
@@ -611,8 +612,12 @@ local updateFn = function(params)
                 end
             end
         end
+        -- this is huge and slow because allArcs is huge
+        -- print('LOLLO mus.com updateFn.terminateConstructionHook result = ')
+        -- require('luadump')(true)(result)
     end
-    
+    -- print('LOLLO mus.com updateFn result = ')
+    -- require('luadump')(true)(result)
     return result
 end
 
