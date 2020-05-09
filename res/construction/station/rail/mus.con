@@ -245,6 +245,7 @@ local createTemplateFn = function(params)
 end
 
 local upgradeFn = function(params)
+    print('LOLLO mus.con upgradeFn starting')
     local modules = {}
     local slotId = params.slotId
     if params.modules[slotId] then
@@ -280,6 +281,7 @@ local upgradeFn = function(params)
 end
 
 local updateFn = function(params)
+    print('LOLLO mus.com updateFn starting')
     if #func.keys(params.modules) == 0 then
         return {
             edgeLists = {},
@@ -379,7 +381,17 @@ local updateFn = function(params)
         local offsets = pipe.new
             * func.seq(posMin > 0 and -1 or (posMin - 1), posMax + 1)
             * pipe.map(function(pos)
-                return g.modules[pos] and g.modules[pos].metadata or {pos = pos, width = 5}
+                print('LOLLO g.modules[pos] and g.modules[pos].metadata = ')
+                require('luadump')(true)(g.modules[pos] and g.modules[pos].metadata or {pos = pos, width = 5})
+                -- LOLLO removed this
+                -- return g.modules[pos] and g.modules[pos].metadata or {pos = pos, width = 5}
+                -- LOLLO added this
+                if g.modules[pos] and g.modules[pos].metadata 
+                and g.modules[pos].metadata.pos and g.modules[pos].metadata.width then
+                    return g.modules[pos].metadata
+                else
+                    return {pos = pos, width = 5}
+                end
             end)
             * offsetGen
         
@@ -604,6 +616,7 @@ local updateFn = function(params)
     return result
 end
 
+print('LOLLO mus.com is being loaded')
 function data()
     local constructionTemplates =
         {
