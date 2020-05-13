@@ -602,7 +602,6 @@ local updateFn = function(params)
     return result
 end
 
-print('LOLLO mus.com is being loaded')
 function data()
     local constructionTemplates =
         {
