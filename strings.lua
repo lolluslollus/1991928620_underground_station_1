@@ -173,7 +173,7 @@ local descTC = [[本MOD提供建造形式豐富的地下車站的可能。
 function data()
     local profile = {
         en = {
-            ["name"] = "Underground Station",
+            ["name"] = "Underground Station frozen to version 1.4",
             ["desc"] = descEN,
             ["MENU_NAME"] = "Underground Station",
             ["MENU_DESC"] = "An underground level for a station, width adjustable platform width and radius.",
