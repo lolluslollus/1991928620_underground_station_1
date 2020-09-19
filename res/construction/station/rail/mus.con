@@ -651,12 +651,14 @@ function data()
                             name = _("MENU_PLATFORM_LEFT"),
                             uiType = "CHECKBOX",
                             values = {"0", "1"},
+                            defaultIndex = 1
                         },
                         {
                             key = "platformRight",
                             name = _("MENU_PLATFORM_RIGHT"),
                             uiType = "CHECKBOX",
                             values = {"0", "1"},
+                            defaultIndex = 1
                         },
                         {
                             key = "isFinalized",
