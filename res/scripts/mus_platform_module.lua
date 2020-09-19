@@ -31,7 +31,7 @@ local function fn(platformWidth, stairsWidth, desc, order, fakeTracks)
                 width = platformWidth,
                 type = mType
             },
-            
+            skipCollision = true, -- LOLLO added this
             updateFn = function(result, transform, tag, slotId, addModelFn, params)
                 local info = mus.slotInfo(slotId)
                 local group = result.group[info.pos.z]

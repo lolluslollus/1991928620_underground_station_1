@@ -32,7 +32,7 @@ function data()
             width = 10,
             type = mType
         },
-        
+        skipCollision = true, -- LOLLO added this
         updateFn = function(result, transform, tag, slotId, addModelFn, params)
             local info = mus.slotInfo(slotId)
             local group = result.group[info.pos.z]

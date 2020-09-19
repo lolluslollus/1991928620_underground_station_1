@@ -686,6 +686,7 @@ function data()
         constructionTemplates = constructionTemplates,
         createTemplateFn = createTemplateFn,
         params = params(),
+        skipCollision = true, -- LOLLO added this
         upgradeFn = upgradeFn,
         updateFn = updateFn
     }

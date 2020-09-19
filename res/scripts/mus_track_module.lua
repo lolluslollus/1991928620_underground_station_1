@@ -29,7 +29,7 @@ return function(trackWidth, trackType, catenary, desc, order)
                 width = trackWidth,
                 type = mType
             },
-            
+            skipCollision = true, -- LOLLO added this
             updateFn = function(result, transform, tag, slotId, addModelFn, params)
                 local withTag = general.withTag(tag)
                 local info = mus.slotInfo(slotId)
